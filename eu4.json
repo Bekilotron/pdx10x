@@ -1,0 +1,15 @@
+{
+    "gamePathName":"Europa Universalis IV",
+    "includeDirs":[
+        "common/technologies",
+        "common/ideas",
+        "common/buildings",
+        "common/event_modifiers",
+        "common/great_projects"
+    ],
+    "modifierBlacklist":[
+        "duration","x","y","id","has_*","*_progress_*","*random*","requested_factories","*_FILTER_*","*threat*","*democratic*","*neutrality*","*fascism*","*communism*",
+        "temp","gui_column","factor","xp_research_cost","research_cost_coeff","xp_research_bonus","*cost*","*sprite*","[\\d][\\d][\\d][\\d]","priority","*_current_level",
+        "start_year","consumer_goods_factor","min_export","add_research_slot"
+    ]
+}
