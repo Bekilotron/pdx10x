@@ -1,0 +1,62 @@
+{
+    "gamePathName": "Hearts of Iron IV",
+    "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Hearts of Iron IV",
+    "modifierBlacklist": [
+        "x",
+        "y",
+        "id",
+        "has_*",
+        "*_progress_*",
+        "*random*",
+        "requested_factories",
+        "*_FILTER_*",
+        "*threat*",
+        "*democratic*",
+        "*neutrality*",
+        "*fascism*",
+        "*communism*",
+        "temp",
+        "gui_column",
+        "factor",
+        "*cost*",
+        "*sprite*",
+        "[\\d][\\d][\\d][\\d]",
+        "priority",
+        "*_current_level",
+        "start_year",
+        "consumer_goods_factor",
+        "min_export",
+        "*skill*",
+        "*state*",
+        "*day*",
+        "*cannot*",
+        "ai_*",
+        "gui_*",
+        "*index*",
+        "inc",
+        "cooldown",
+        "remove_*",
+        "set_capital"
+    ],
+    "optional":{
+        "Research Slots":["add_research_slot"],
+        "Consumer Goods":["consumer_goods_factor"],
+        "XP research costs and bonuses":["research_cost_coeff","xp_research_bonus","xp_research_cost"],
+        "Manpower":["*manpower*"],
+        "Factory Power":["nuclear_production_factor","production_oil_factor","production_factory_max_efficiency_factor","line_change_production_efficiency_factor","production_factory_efficiency_gain_factor","production_factory_start_efficiency_factor","production_speed_buildings_factor"],
+        "Fuhrer Mana":["*political_power*"]
+    },
+    "dirSets":{
+        "Army leaders":["common/unit_leader"],
+        "Intelligence Agencies":["common/intelligence_agency_upgrades"],
+        "Units":[
+            "common/units",
+            "common/units/equipment",
+            "common/units/equipment/upgrades",
+            "common/units/equipment/modules"
+        ],
+        "Abilities":["common/abilities"],
+        "Tech":["common/technologies"],
+        "Focuses & Ideas":["common/national_focus","common/ideas","common/country_leader"]
+    }
+}
