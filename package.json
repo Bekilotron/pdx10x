@@ -20,6 +20,7 @@
     "lodash": "^4.17.21",
     "memoizee": "^0.4.15",
     "micromatch": "^4.0.4",
+    "regedit": "^5.0.0",
     "yargs": "^15.4.1",
     "zlib": "^1.0.5"
   },
@@ -29,10 +30,12 @@
     "@types/memoizee": "^0.4.6",
     "@types/micromatch": "^4.0.2"
   },
-  "pkg":{
+  "pkg": {
     "scripts": "bin/**/*.js",
     "assets": "games/**/*",
-    "targets":["node16-win-x64"],
-    "outputPath":"dist"
+    "targets": [
+      "node16-win-x64"
+    ],
+    "outputPath": "dist"
   }
 }

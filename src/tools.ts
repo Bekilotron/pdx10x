@@ -4,6 +4,7 @@ import * as pathlib from 'path';
 import * as _ from 'lodash'
 import { string } from 'yargs';
 const { MultiSelect } = require('enquirer');
+const regedit = require('regedit')
 import zlib from "zlib";
 export interface ModFileLine {
     key: string;
@@ -11,7 +12,6 @@ export interface ModFileLine {
 }
 export interface GameSettings{
     gamePathName: string,
-    path: string,
     modifierBlacklist: string[],
     optional: {[key: string]:string[]}
     dirSets:  {[key: string]:string[]},
@@ -122,4 +122,15 @@ export function deserializeGenParams(gpS: string): GenParams{
     let buf = Buffer.from(gpS,'hex');
     let unzip = zlib.gunzipSync(buf).toString('utf8');
     return JSON.parse(unzip);
+}
+export function getSteamGamePath(gameName: string): Promise<string>{
+    return new Promise((res,rej)=>{
+        regedit.list('HKCU\\SOFTWARE\\Valve\\Steam',(err: any,result: any)=>{
+            if(err){
+                rej(err);
+            }
+            let steamPath = result['HKCU\\SOFTWARE\\Valve\\Steam'].values.SteamPath.value
+            res(pathlib.join(steamPath,'steamapps/common/',gameName));
+        });
+    })
 }

@@ -1,15 +1,14 @@
 {
     "gamePathName": "Europa Universalis IV",
-    "includeDirs": [
-        "common/technologies",
-        "common/ideas",
-        "common/buildings",
-        "common/event_modifiers",
-        "common/great_projects",
-        "common/policies",
-        "common/native_advancement"
-    ],
-    "path":"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Europa Universalis IV",
+    "dirSets":{
+        "Technologies":["common/technologies"],
+        "Ideas":["common/ideas"],
+        "Buildings":["common/buildings"],
+        "Events (Not recommended)":["common/event_modifiers"],
+        "Policies":["common/policies"],
+        "Native Advancement":["common/native_advancement"]
+    },
+    "optional":{},
     "modifierBlacklist": [
         "duration",
         "x",
@@ -34,9 +33,6 @@
         "priority",
         "*_current_level",
         "start_year",
-        "consumer_goods_factor",
-        "min_export",
-        "add_research_slot",
         "ai_*",
         "*date*",
         "*year*",

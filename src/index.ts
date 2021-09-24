@@ -5,7 +5,7 @@ import * as micromatch from 'micromatch';
 import { default as memoize } from 'memoizee';
 import * as os from 'os';
 import * as yargs from 'yargs';
-import { deserializeGenParams, fullPath, GameSettings, GenParams, getModlist, Mod, multiSelect, readAllFiles, readDirFiles, selectionToValue, serializeGenParams, writeDebug } from './tools';
+import { deserializeGenParams, fullPath, GameSettings, GenParams, getModlist, getSteamGamePath, Mod, multiSelect, readAllFiles, readDirFiles, selectionToValue, serializeGenParams, writeDebug } from './tools';
 import { prompt } from 'enquirer';
 import { Balancer } from './balancer';
 const { Confirm, Select } = require('enquirer');
@@ -52,7 +52,7 @@ async function main() {
     }
     const gameConfig = require('../games/' + chosenGame + '.json') as GameSettings;
     
-    const gamepath = gameConfig.path;
+    const gamepath = await getSteamGamePath(chosenGame);
     const documentsFolder = pathlib.join(os.homedir(), '/Documents/Paradox Interactive')
     
     
@@ -64,9 +64,9 @@ async function main() {
     const mods = await getModlist(gameDocuments);
     const modObj = _.zipObject(mods.map(x=>x.name),mods) as {}
     if(!genparams){
-        const selectedIncludeDirs = await multiSelect("Select game features to be affected by CHAOS:",gameConfig.dirSets)
+        const selectedIncludeDirs = await multiSelect("Select game features to be affected by balancing:",gameConfig.dirSets)
         
-        const selectedBlacklists = await multiSelect("Select categories of features to be CHAOTIC:",gameConfig.optional,true);
+        const selectedBlacklists = await multiSelect("Select modifiers to be perfectly balanced:",gameConfig.optional,true);
         if (!fs.existsSync(pathlib.join(gameDocuments, 'dlc_signature'))) {
             console.log(`No data found at: '${gameDocuments}'`)
             console.log('Please try running again with --docPath specified or try running the game once before.');
@@ -190,7 +190,7 @@ console.log('')
     console.log(`${serializeGenParams(genparams)}`)
     await (new Confirm({
         name: 'question',
-        message: 'Press enter to close...'
+        message: 'Press any key to close...'
     })).run()
 }
 main();
