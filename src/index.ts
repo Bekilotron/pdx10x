@@ -6,14 +6,16 @@ import { default as memoize } from 'memoizee';
 import * as os from 'os';
 import * as yargs from 'yargs';
 import { deserializeGenParams, fullPath, GameSettings, GenParams, getModlist, Mod, multiSelect, readAllFiles, readDirFiles, selectionToValue, serializeGenParams, writeDebug } from './tools';
-const { MultiSelect } = require('enquirer');
+import { prompt } from 'enquirer';
+import { Balancer } from './balancer';
+const { Confirm } = require('enquirer');
 const modName = "GENERATED_MOD"
 const programArgs = yargs
     .option('game', {
         alias: 'g',
         type: 'string',
         description: 'A game to load values from (.json file)',
-        required: true
+        default:'hoi4'
     }).option('code',{
         alias: 'c',
         type:'string',
@@ -25,20 +27,13 @@ const gameConfig = require('../games/' + programArgs.game + '.json') as GameSett
 
 const gamepath = gameConfig.path;
 const documentsFolder = pathlib.join(os.homedir(), '/Documents/Paradox Interactive')
-if(!fs.existsSync('debug')){
-    fs.mkdirSync('debug')
-}
+
 
 const gamePathName: string = gameConfig.gamePathName
 const gameDocuments = pathlib.join(documentsFolder, gamePathName)
 const blacklist: string[] = gameConfig.modifierBlacklist
 
 let genparams: GenParams|undefined;
-if(programArgs.code){
-    console.log("Reading prepared mod config.")
-    genparams = deserializeGenParams(programArgs.code);
-    console.log("Read params.")
-}
 const mmAny = memoize((str: string) => {
     if (blacklist) {
         return micromatch.any(str, blacklist);
@@ -47,6 +42,20 @@ const mmAny = memoize((str: string) => {
 }, { primitive: true });
 
 async function main() {
+    if(programArgs.code){
+        console.log("Reading prepared mod config.")
+        genparams = deserializeGenParams(programArgs.code);
+        console.log("Read params.")
+    }else{
+        const res = await prompt([{
+            type: 'input',
+            name: 'genparams',
+            message: 'Enter a config code if you have it here, otherwise just press enter:'
+        }]) as any
+        if(res.genparams){
+            genparams = deserializeGenParams(res.genparams);
+        }
+    }
     const mods = await getModlist(gameDocuments);
     const modObj = _.zipObject(mods.map(x=>x.name),mods) as {}
     if(!genparams){
@@ -109,33 +118,24 @@ async function main() {
 
     let debug_allprops: any = {}
     let debug_matchedProps: any = {}
-    let debug_contents = [];
+    let debug_contents: string[] = [];
     const fileContents = await readAllFiles(Object.values(fileMap));
     const relativePaths = Object.keys(fileMap);
     const fileContentContent = Object.values(fileContents)
 
     console.log("Generating balance...")
-    let counterEach =0;
-    let counterPeriod = 0;
+    const balancer = new Balancer(genparams.seed)
     for (let i = 0; i < fileContentContent.length; i++) {
         let content = fileContentContent[i]
         let pathRelative = relativePaths[i];
         let matchesAny = false;
-        debug_contents.push(content);
+        //debug_contents.push(content);
         content = content.replace(modifierRegex, ((match, p1, p2, offset, string) => {
             debug_allprops[p1] = p2;
             if (!isNaN(Number(p2)) && !mmAny(p1)) {
                 matchesAny = true;
                 debug_matchedProps[p1] = p2;
-                const factor = Math.sin(counterPeriod + genparams!.seed)
-                if(p2.indexOf('.') > -1 && factor < -0.5) {
-                    p2 = (Number(p2) * 0.1) + ''
-                }
-                counterEach++;
-                if(counterEach % 30 === 0){
-                    counterPeriod++;
-                }
-                return `${p1} = ${Number(p2) * (factor > 0.5 ? 10 : 1)}`;
+                return balancer.balance(p1,p2);
             } else {
                 return match;
             }
@@ -175,8 +175,16 @@ name="${modName}"\n
 supported_version="*"\n
 path=mod/${modName}\n
 `)
+console.log('')
+console.log('')
     console.log(`Wrote mod to ${finalMod}`)
+
+    console.log('')
     console.log(`To share this mod configuration, give this code to your friends:`);
     console.log(`${serializeGenParams(genparams)}`)
+    await (new Confirm({
+        name: 'question',
+        message: 'Press enter to close...'
+    })).run()
 }
 main();

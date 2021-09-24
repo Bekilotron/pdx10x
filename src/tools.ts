@@ -64,6 +64,10 @@ export async function getModlist(gameDocumentsFolder: string): Promise<Mod[]> {
     return mods
 }
 export async function writeDebug(fileName: string, data: string){
+    
+    if(!fs.existsSync('debug')){
+        fs.mkdirSync('debug')
+    }
     fs.writeFileSync(pathlib.join('debug/',fileName),data);
 }
 export function readDirFiles(dir: string): string[]{

@@ -2,11 +2,13 @@
   "name": "10xmodmaker",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "bin/index.js",
+  "bin": "bin/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "eu4": "tsc && node bin/index -g eu4",
-    "hoi4": "tsc && node bin/index -g hoi4"
+    "hoi4": "tsc && node bin/index -g hoi4",
+    "build": "tsc && pkg ."
   },
   "author": "",
   "license": "ISC",
@@ -26,5 +28,11 @@
     "@types/lodash": "^4.14.173",
     "@types/memoizee": "^0.4.6",
     "@types/micromatch": "^4.0.2"
+  },
+  "pkg":{
+    "scripts": "bin/**/*.js",
+    "assets": "games/**/*",
+    "targets":["node16-win-x64"],
+    "outputPath":"dist"
   }
 }
