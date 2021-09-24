@@ -6,8 +6,7 @@
   "bin": "bin/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "eu4": "tsc && node bin/index -g eu4",
-    "hoi4": "tsc && node bin/index -g hoi4",
+    "dev": "tsc && node bin/index",
     "build": "tsc && pkg ."
   },
   "author": "",

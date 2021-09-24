@@ -137,6 +137,7 @@ async function main() {
         let matchesAny = false;
         //debug_contents.push(content);
         content = content.replace(modifierRegex, ((match, p1, p2, offset, string) => {
+            if(p1.length === 0) return match;
             debug_allprops[p1] = p2;
             if (!isNaN(Number(p2)) && !mmAny(p1,blacklist)) {
                 matchesAny = true;
@@ -157,9 +158,9 @@ async function main() {
             //console.log('No usable modifiers found, skipping');
         }
     }
-    writeDebug('props_all_' + programArgs.game + '.csv', Object.keys(debug_allprops).map(x => x + ',' + debug_allprops[x]).join('\n'))
-    writeDebug('props_matched_' + programArgs.game + '.csv', Object.keys(debug_matchedProps).map(x => x + ',' + debug_matchedProps[x]).join('\n'))
-    writeDebug('content_' + programArgs.game + '.txt', debug_contents.join('\n\n\n\n\n\n'))
+    writeDebug('props_all_' + chosenGame + '.csv', Object.keys(debug_allprops).map(x => x + ',' + debug_allprops[x]).join('\n'))
+    writeDebug('props_matched_' + chosenGame + '.csv', Object.keys(debug_matchedProps).map(x => x + ',' + debug_matchedProps[x]).join('\n'))
+    writeDebug('content_' + chosenGame + '.txt', debug_contents.join('\n\n\n\n\n\n'))
 
     const rpString = rp.map(x=>`replace_path="${x}"`).join('\n')
     fs.writeFileSync(pathlib.join(finalMod, '/descriptor.mod'), `

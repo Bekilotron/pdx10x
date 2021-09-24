@@ -1,7 +1,8 @@
 export class Balancer{
     counterEach: number=0;
     counterPeriod: number =0;
-    seed: number
+    seed: number;
+
     constructor(seed: number){
         this.seed = seed;
     }

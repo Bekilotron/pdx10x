@@ -53,7 +53,9 @@ export async function getModlist(gameDocumentsFolder: string): Promise<Mod[]> {
     const modfileContent = await readAllFiles(files.map(x => pathlib.join(modDocuments, x)))
     for (const mod of Object.values(modfileContent)) {
         const modfile = readModfile(mod)
-        const contentPath = modfile.find(x=>x.key === 'path')!.value
+        let path = modfile.find(x=>x.key === 'path');
+        if(!path) continue;
+        const contentPath = path.value
         const modName = modfile.find(x=>x.key === 'name')!.value
         mods.push({
             name: modName,
