@@ -8,33 +8,15 @@ import * as yargs from 'yargs';
 import { deserializeGenParams, fullPath, GameSettings, GenParams, getModlist, Mod, multiSelect, readAllFiles, readDirFiles, selectionToValue, serializeGenParams, writeDebug } from './tools';
 import { prompt } from 'enquirer';
 import { Balancer } from './balancer';
-const { Confirm } = require('enquirer');
+const { Confirm, Select } = require('enquirer');
 const modName = "GENERATED_MOD"
-const programArgs = yargs
-    .option('game', {
-        alias: 'g',
-        type: 'string',
-        description: 'A game to load values from (.json file)',
-        default:'hoi4'
-    }).option('code',{
+const programArgs = yargs.option('code',{
         alias: 'c',
         type:'string',
-        required: false,
         description:'A predefined mod config'
     })
     .argv
-const gameConfig = require('../games/' + programArgs.game + '.json') as GameSettings;
-
-const gamepath = gameConfig.path;
-const documentsFolder = pathlib.join(os.homedir(), '/Documents/Paradox Interactive')
-
-
-const gamePathName: string = gameConfig.gamePathName
-const gameDocuments = pathlib.join(documentsFolder, gamePathName)
-const blacklist: string[] = gameConfig.modifierBlacklist
-
-let genparams: GenParams|undefined;
-const mmAny = memoize((str: string) => {
+const mmAny = memoize((str: string,blacklist: string[]) => {
     if (blacklist) {
         return micromatch.any(str, blacklist);
     }
@@ -42,6 +24,7 @@ const mmAny = memoize((str: string) => {
 }, { primitive: true });
 
 async function main() {
+    let genparams: GenParams|undefined;
     if(programArgs.code){
         console.log("Reading prepared mod config.")
         genparams = deserializeGenParams(programArgs.code);
@@ -56,6 +39,28 @@ async function main() {
             genparams = deserializeGenParams(res.genparams);
         }
     }
+    let chosenGame
+    if(!genparams){
+        const possibleGames = ['hoi4','eu4','stellaris']
+        chosenGame =await new Select({
+            name: 'game',
+            message: 'Select a game to perfectly balance:',
+            choices: possibleGames
+        }).run();
+    }else{
+        chosenGame = genparams.chosenGame
+    }
+    const gameConfig = require('../games/' + chosenGame + '.json') as GameSettings;
+    
+    const gamepath = gameConfig.path;
+    const documentsFolder = pathlib.join(os.homedir(), '/Documents/Paradox Interactive')
+    
+    
+    const gamePathName: string = gameConfig.gamePathName
+    const gameDocuments = pathlib.join(documentsFolder, gamePathName)
+    const blacklist: string[] = gameConfig.modifierBlacklist
+    
+    
     const mods = await getModlist(gameDocuments);
     const modObj = _.zipObject(mods.map(x=>x.name),mods) as {}
     if(!genparams){
@@ -73,6 +78,7 @@ async function main() {
         const seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER/2)
 
         genparams = {
+            chosenGame: chosenGame,
             includeDirs: selectedIncludeDirs,
             blacklistAdditions: selectedBlacklists,
             mods: selectedModNames,
@@ -132,7 +138,7 @@ async function main() {
         //debug_contents.push(content);
         content = content.replace(modifierRegex, ((match, p1, p2, offset, string) => {
             debug_allprops[p1] = p2;
-            if (!isNaN(Number(p2)) && !mmAny(p1)) {
+            if (!isNaN(Number(p2)) && !mmAny(p1,blacklist)) {
                 matchesAny = true;
                 debug_matchedProps[p1] = p2;
                 return balancer.balance(p1,p2);

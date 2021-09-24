@@ -14,7 +14,8 @@ export interface GameSettings{
     path: string,
     modifierBlacklist: string[],
     optional: {[key: string]:string[]}
-    dirSets:  {[key: string]:string[]}
+    dirSets:  {[key: string]:string[]},
+    
 }
 export type fullPath = string
 export async function readAllFiles(paths: string[]): Promise<{ [key: string]: string }> {
@@ -108,6 +109,7 @@ export  function selectionToValue<T>(selection: string[],values: {[key: string]:
     return _.flatten(ret);
 }
 export interface GenParams {
+    chosenGame: string,
     includeDirs: string[],
     blacklistAdditions: string[],
     mods: string[],
