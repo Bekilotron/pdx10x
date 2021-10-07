@@ -1,6 +1,7 @@
 {
     "gamePathName": "Europa Universalis IV",
     "dirSets":{
+        "Ages":["common/ages"],
         "Technologies":["common/technologies"],
         "Ideas":["common/ideas"],
         "Buildings":["common/buildings"],
@@ -49,6 +50,9 @@
         "*start*",
         "*interest*",
         "*inflation*",
-        "*free*"
+        "*free*",
+        "renaissance",
+        "personal_union",
+        "fort_level"
     ]
 }

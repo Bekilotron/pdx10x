@@ -35,7 +35,8 @@
         "inc",
         "cooldown",
         "remove_*",
-        "set_capital"
+        "set_capital",
+        "civilian_factory_use"
     ],
     "optional":{
         "Research Slots":["add_research_slot"],
@@ -48,7 +49,7 @@
     "dirSets":{
         "Army leaders":["common/unit_leader"],
         "Intelligence Agencies":["common/intelligence_agency_upgrades"],
-        "Units":[
+        "Units (Not Recommended!)":[
             "common/units",
             "common/units/equipment",
             "common/units/equipment/upgrades",

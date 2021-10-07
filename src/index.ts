@@ -7,7 +7,7 @@ import * as os from 'os';
 import * as yargs from 'yargs';
 import { deserializeGenParams, fullPath, GameSettings, GenParams, getModlist, getSteamGamePath, Mod, multiSelect, readAllFiles, readDirFiles, selectionToValue, serializeGenParams, writeDebug } from './tools';
 import { prompt } from 'enquirer';
-import { Balancer } from './balancer';
+import { BalancerType, createBalancer } from './balancers/balancecreator';
 const { Confirm, Select } = require('enquirer');
 const modName = "GENERATED_MOD"
 const programArgs = yargs.option('code',{
@@ -52,7 +52,7 @@ async function main() {
     }
     const gameConfig = require('../games/' + chosenGame + '.json') as GameSettings;
     
-    const gamepath = await getSteamGamePath(chosenGame);
+    const gamepath = await getSteamGamePath(gameConfig.gamePathName);
     const documentsFolder = pathlib.join(os.homedir(), '/Documents/Paradox Interactive')
     
     
@@ -120,7 +120,7 @@ async function main() {
         }
         await fs.copy(mod.value,finalMod);//copy base mod over
     }
-    const modifierRegex = /(\w*)\s*=\s*(\d+[.,]\d+|\d+)\s*?/g
+    const modifierRegex = /((?:cost|upkeep)\s*=\s*{[^}]*}|(\w*)\s*=\s*(\-?\d+[.,]\d+|\-?\d+)\s*?)/gim
 
     let debug_allprops: any = {}
     let debug_matchedProps: any = {}
@@ -130,19 +130,19 @@ async function main() {
     const fileContentContent = Object.values(fileContents)
 
     console.log("Generating balance...")
-    const balancer = new Balancer(genparams.seed)
+    const balancer = createBalancer(BalancerType.traits,genparams.seed)
     for (let i = 0; i < fileContentContent.length; i++) {
         let content = fileContentContent[i]
         let pathRelative = relativePaths[i];
         let matchesAny = false;
-        //debug_contents.push(content);
-        content = content.replace(modifierRegex, ((match, p1, p2, offset, string) => {
-            if(p1.length === 0) return match;
-            debug_allprops[p1] = p2;
-            if (!isNaN(Number(p2)) && !mmAny(p1,blacklist)) {
+        debug_contents.push(content);
+        content = content.replace(modifierRegex, ((match, p1, p2,p3, offset, string) => {
+            if(!p2) return match;
+            debug_allprops[p2] = p3;
+            if (!isNaN(Number(p3)) && !mmAny(p2,blacklist)) {
                 matchesAny = true;
-                debug_matchedProps[p1] = p2;
-                return balancer.balance(p1,p2);
+                debug_matchedProps[p2] = p3;
+                return balancer.balance(pathRelative,p2,p3);
             } else {
                 return match;
             }
@@ -182,10 +182,12 @@ name="${modName}"\n
 supported_version="*"\n
 path=mod/${modName}\n
 `)
+writeDebug('allFiles.csv',balancer.getAll().join("\n"))
+writeDebug('interestingFiles.csv',balancer.getInteresting().join("\n"))
 console.log('')
 console.log('')
     console.log(`Wrote mod to ${finalMod}`)
-
+    console.log("List of interesting touched files is available in the debug folder");
     console.log('')
     console.log(`To share this mod configuration, give this code to your friends:`);
     console.log(`${serializeGenParams(genparams)}`)

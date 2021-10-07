@@ -4,7 +4,6 @@ import * as pathlib from 'path';
 import * as _ from 'lodash'
 import { string } from 'yargs';
 const { MultiSelect } = require('enquirer');
-const regedit = require('regedit')
 import zlib from "zlib";
 export interface ModFileLine {
     key: string;
@@ -67,13 +66,15 @@ export async function getModlist(gameDocumentsFolder: string): Promise<Mod[]> {
     return mods
 }
 export async function writeDebug(fileName: string, data: string){
-    
     if(!fs.existsSync('debug')){
         fs.mkdirSync('debug')
     }
     fs.writeFileSync(pathlib.join('debug/',fileName),data);
 }
 export function readDirFiles(dir: string): string[]{
+    if(!fs.existsSync(dir)){
+        return [];
+    }
     return fs.readdirSync(dir,{withFileTypes: true}).filter(x=>{
         return x.isFile()
     }).map(x=>x.name);
@@ -127,12 +128,13 @@ export function deserializeGenParams(gpS: string): GenParams{
 }
 export function getSteamGamePath(gameName: string): Promise<string>{
     return new Promise((res,rej)=>{
-        regedit.list('HKCU\\SOFTWARE\\Valve\\Steam',(err: any,result: any)=>{
+        return res(pathlib.join('C:\\Program Files (x86)\\Steam\\steamapps\\common',gameName))
+        /*regedit.list('HKCU\\SOFTWARE\\Valve\\Steam',(err: any,result: any)=>{
             if(err){
                 rej(err);
             }
             let steamPath = result['HKCU\\SOFTWARE\\Valve\\Steam'].values.SteamPath.value
             res(pathlib.join(steamPath,'steamapps/common/',gameName));
-        });
+        });*/
     })
 }

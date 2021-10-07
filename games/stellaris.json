@@ -45,25 +45,25 @@
         "weight",
         "tier",
         "delay",
-        "category_value",
-        "base",
-        "value"
+        "row_*",
+        "col_*",
+        "*usage*"
     ],
     "optional":{
-        "Jobs":["job_*"],
+        "Number of jobs (Not Recommended)":["job_*"],
         "Job Production":["*_produces_mult"],
         "Ship Buffs":["ship_*"],
         "General research multipliers":["*research*"],
-        "Pop growth":["pop_assembly_speed","pop_growth*"],
-        "Fuhrer Mana":["*political_power*"]
+        "Pop growth (Not Recommended)":["pop_assembly_speed","pop_growth*"]
     },
     "dirSets":{
-        "Traditions":["common/traditions"],
-        "Traits":["common/traits"],
-        "Buildings":["common/buildings"],
-        "Edicts":["common/edicts"],
-        "Ethics":["common/ethics"],
+        "Traditions":["common/traditions","common/ascension_perks"],
+        "Species Traits":["common/traits"],
+        "Buildings":["common/buildings","common/colony_types"],
+        "Edicts & Decisions":["common/edicts","common/decisions"],
         "Armies": ["common/armies"],
-        "Tech":["common/technology"]
+        "Tech":["common/technology"],
+        "Government": ["common/governments","common/governments/authorities","common/governments/civics","common/agendas","common/ethics"],
+        "Megastructures":["common/megastructures"]
     }
 }
