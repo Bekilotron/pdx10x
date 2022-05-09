@@ -1,0 +1,92 @@
+{
+    "gamePathName": "Crusader Kings III",
+    "modifierBlacklist": [
+        "pos_compat_*",
+        "neg_compat_*",
+        "index",
+        "minimum_age",
+        "ruler_designer_cost",
+        "ai_*",
+        "score",
+        "maximum_age",
+        "random_creation",
+        "forced_portrait_age_index",
+        "*index*",
+        "both_parent_has_trait_inherit_chance",
+        "life_expectancy",
+        "years",
+        "additional_fort_level",
+        "factor",
+        "days",
+        "subtract",
+        "*chance*",
+        "months",
+        "max",
+        "prestige_level",
+        "*genetic*",
+        "LEVEL",
+        "cost_gold",
+        "cost_piety",
+        "max_size",
+        "beauty_good_1",
+        "intellect_good_1",
+        "physique_good_1",
+        "fecund",
+        "albino",
+        "giant",
+        "dwarf",
+        "scaly",
+        "supply_limits",
+        "construction_time",
+        "fort_level",
+        "base",
+        "add",
+        "value",
+        "gluttonous",
+        "birth",
+        "level",
+        "*opinion*",
+        "min",
+        "court_grandeur_current_level",
+        "focus_id",
+        "divide",
+        "count",
+        "add_prestige_level",
+        "sort_order"
+    ],
+    "optional": {
+        "Combat":["*cavalry*","*damage*","*advantage*","*infantry*","*archer*"]
+    },
+    "dirSets": {
+        "Traits": [
+            "game/common/traits"
+        ],
+        "Decisions": [
+            "game/common/decisions"
+        ],
+        "Buildings": [
+            "game/common/buildings"
+        ],
+        "Culture": [
+            "game/common/culture/innovations"
+        ],
+        "Dynasty": [
+            "game/common/dynasty_perks"
+        ],
+        "Religion": [
+            "game/common/religion/doctrine"
+        ],
+        "Courts": [
+            "game/common/court_types",
+            "game/common/court_positions/types",
+            "game/common/court_amenities",
+            "game/common/council_tasks"
+        ],
+        "Misc": [
+            "game/common/focuses",
+            "game/common/culture/traditions",
+            "game/common/culture/innovations",
+            "game/common/lifestyle_perks"
+        ]
+    }
+}

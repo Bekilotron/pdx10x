@@ -1,10 +1,11 @@
 import * as fs from 'fs-extra';
 import { promises as fsp } from 'fs'
-import * as pathlib from 'path';
+import path, * as pathlib from 'path';
 import * as _ from 'lodash'
-import { string } from 'yargs';
 const { MultiSelect } = require('enquirer');
+import { prompt } from 'enquirer';
 import zlib from "zlib";
+import { number } from 'yargs';
 export interface ModFileLine {
     key: string;
     value: string;
@@ -71,15 +72,35 @@ export async function writeDebug(fileName: string, data: string){
     }
     fs.writeFileSync(pathlib.join('debug/',fileName),data);
 }
-export function readDirFiles(dir: string): string[]{
-    if(!fs.existsSync(dir)){
+export function readDirFiles(abs: string,relative: string): {relative:string, fullpath: string}[]{
+    if(!fs.existsSync(abs)){
         return [];
     }
-    return fs.readdirSync(dir,{withFileTypes: true}).filter(x=>{
+    const fmt = (file: string)=>{
+        return {
+            relative: pathlib.join(relative,file),
+            fullpath: pathlib.join(abs,file)
+        }
+    }
+    if(fs.statSync(abs).isFile()){
+        return [fmt('')];
+    }
+    return fs.readdirSync(abs,{withFileTypes: true}).filter(x=>{
         return x.isFile()
-    }).map(x=>x.name);
+    }).map(x=>fmt(x.name));
 }
-
+export async function numberInput(userPrompt: string, defaultValue: number): Promise<number>{
+    let res: {value: number} = await prompt({
+        type: 'numeral',
+        message: userPrompt,
+        'initial':defaultValue,
+        min: 0,
+        max: 100,
+        float: false,
+        'name':'value'
+    })
+    return res.value;
+}
 export async function multiSelect<T>(userPrompt: string,choices: {[key: string]: string[]},invert=false){
     let choiceArray = Object.keys(choices);
     if(choiceArray.length === 0) return []
@@ -111,12 +132,17 @@ export  function selectionToValue<T>(selection: string[],values: {[key: string]:
     }
     return _.flatten(ret);
 }
+export interface BalancerOptions{
+    seed: number,
+    chance_10x: number,
+    chance_01x: number
+}
 export interface GenParams {
     chosenGame: string,
     includeDirs: string[],
     blacklistAdditions: string[],
     mods: string[],
-    seed: number
+    balancing: BalancerOptions
 }
 export function serializeGenParams(gp: GenParams){
     return zlib.gzipSync(JSON.stringify(gp)).toString('hex')
@@ -127,8 +153,20 @@ export function deserializeGenParams(gpS: string): GenParams{
     return JSON.parse(unzip);
 }
 export function getSteamGamePath(gameName: string): Promise<string>{
-    return new Promise((res,rej)=>{
-        return res(pathlib.join('C:\\Program Files (x86)\\Steam\\steamapps\\common',gameName))
+    return new Promise(async (res,rej)=>{
+        const query = await prompt([{
+            type: 'input',
+            name: 'data',
+            message: 'Enter the path to steamapps/common, or just press enter for default:'
+        }]) as any
+        let path = "C:\\Program Files (x86)\\Steam\\steamapps\\common"
+        if(query.data){
+            path = (query.data);
+        }
+        if(gameName === 'Imperator'){
+            gameName = 'ImperatorRome'//???
+        }
+        return res(pathlib.join(path,gameName))
         /*regedit.list('HKCU\\SOFTWARE\\Valve\\Steam',(err: any,result: any)=>{
             if(err){
                 rej(err);

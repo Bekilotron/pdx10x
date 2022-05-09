@@ -1,5 +1,5 @@
 {
-  "name": "10xmodmaker",
+  "name": "balancer",
   "version": "1.0.0",
   "description": "",
   "main": "bin/index.js",
@@ -15,6 +15,7 @@
     "@types/node": "^13.13.52",
     "@types/yargs": "^15.0.14",
     "enquirer": "^2.3.6",
+    "folder-hash": "^4.0.1",
     "fs-extra": "^8.1.0",
     "lodash": "^4.17.21",
     "memoizee": "^0.4.15",
@@ -24,6 +25,7 @@
     "zlib": "^1.0.5"
   },
   "devDependencies": {
+    "@types/folder-hash": "^4.0.1",
     "@types/fs-extra": "^8.1.2",
     "@types/lodash": "^4.14.173",
     "@types/memoizee": "^0.4.6",

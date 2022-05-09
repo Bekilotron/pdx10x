@@ -3,7 +3,7 @@ import random, { Random } from 'random'
 import { Balancer } from "./balancer";
 export class TraitBalancer extends Balancer{
     values: {[key: string]: number} = {};
-    getFactor(fileName: string,key: string,value: string){
+    getFactor(fileName: string,key: string,value: string, count: number){
         if(!this.values[key]){
             this.values[key] = this.rng.float(-1,1)
         }
