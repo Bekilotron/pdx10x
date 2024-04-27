@@ -3,7 +3,7 @@ import seedrandom from 'seedrandom'
 import { BalancerOptions } from '../tools';
 export abstract class Balancer{
     bp: BalancerOptions;
-    rng: seedrandom.PRNG;
+    rng: any;
     constructor(bp: BalancerOptions){
         this.bp = bp;
         this.rng = seedrandom(bp.seed+"");

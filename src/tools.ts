@@ -5,6 +5,7 @@ import * as _ from 'lodash'
 const { MultiSelect } = require('enquirer');
 import { prompt } from 'enquirer';
 import zlib from "zlib";
+import { BalancerType } from './balancers/balancecreator';
 export interface ModFileLine {
     key: string;
     value: string;
@@ -131,6 +132,7 @@ export  function selectionToValue<T>(selection: string[],values: {[key: string]:
     return _.flatten(ret);
 }
 export interface BalancerOptions{
+    balancer: BalancerType,
     seed: number,
     chance_10x: number,
     chance_01x: number

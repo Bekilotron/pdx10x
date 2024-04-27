@@ -5,10 +5,13 @@ import { RandomBalancer } from "./random";
 import { TraitBalancer } from "./traits";
 
 export enum BalancerType{
-    filebased,periodical,traits,random
+    filebased="File Based",
+    periodical="Wave distribution",
+    traits="Traits",
+    random="Completely random"
 }
-export function createBalancer(kind: BalancerType,bp: BalancerOptions){
-    switch(kind){
+export function createBalancer(bp: BalancerOptions){
+    switch(bp.balancer){
         case BalancerType.filebased:
             return new FileBasedBalancer(bp);
         case BalancerType.periodical:

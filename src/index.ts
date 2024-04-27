@@ -1,6 +1,7 @@
-import * as fs from 'fs-extra';
+import * as fs from 'fs/promises';
 import * as pathlib from 'path';
-import * as _ from 'lodash'
+import _ from 'lodash';
+import * as fs_extra from 'fs-extra'
 import * as micromatch from 'micromatch';
 import { default as memoize } from 'memoizee';
 import { fullPath, readAllFiles, readDirFiles, serializeGenParams, writeDebug } from './tools';
@@ -37,10 +38,10 @@ async function main() {
     const rp = _.uniq(_.flatten(genparams.selectedMods.map(x => x.replacePaths)))
 
     let modFolder = pathlib.join(genparams.derived.gameDocumentsPath, `mod/${modName}`);
-    fs.ensureDirSync(modFolder)
-    fs.emptyDirSync(modFolder)
+    fs_extra.ensureDirSync(modFolder)
+    fs_extra.emptyDirSync(modFolder)
     const fileMap: { [key: string]: fullPath } = {}
-    console.log("Enumerating files & performing copies...")
+    console.log("Enumerating files...")
     for (const dir of genparams.includeDirs) {
         if (rp.indexOf(dir) !== -1) {
             continue;
@@ -51,17 +52,19 @@ async function main() {
             fileMap[file.relative] = file.fullpath
         }
     }
+    console.log("Performing copies...")
     for (const mod of genparams.selectedMods) {
         for (const dir of genparams.includeDirs) {
             const fullPath = pathlib.join(mod.value, dir);
-            if (fs.existsSync(fullPath)) {
+            if (fs_extra.existsSync(fullPath)) {
                 const allFiles = readDirFiles(fullPath, dir)
                 for (const file of allFiles) {
                     fileMap[file.relative] = file.fullpath
                 }
             }
         }
-        await fs.copy(mod.value, modFolder);//copy base mod over
+        console.log(`Copying mod "${mod.name}"...`)
+        await fs.cp(mod.value, modFolder,{recursive: true});//copy base mod over
     }
     const modifierRegex = /((?:cost|upkeep|build_cost_resources|modifier)\s*=\s*{[^}]*}|(\w*)\s*=\s*(\-?\d+[.,]\d+|\-?\d+)\s*?)/gim
     const openBracketsRegex = /(\w*)[\s=]*{/i;
@@ -80,7 +83,7 @@ async function main() {
     const fileContentContent = Object.values(fileContents)
 
     console.log("Generating balance...")
-    const balancer = createBalancer(BalancerType.random, genparams.balancing)
+    const balancer = createBalancer(genparams.balancing)
     for (let i = 0; i < fileContentContent.length; i++) {
         let content = fileContentContent[i]
 
@@ -150,8 +153,8 @@ async function main() {
             let pathCleaned = pathRelative.replace(/^game[\\\/]common[\\\/]/igm, 'common\\');
             let componentPath = pathlib.join(modFolder, pathCleaned)
             //console.log(`Component path will be written: ${componentPath}`)
-            fs.mkdirpSync(pathlib.dirname(componentPath))
-            fs.writeFileSync(componentPath, lines.join('\n'), {
+            await fs.mkdir(pathlib.dirname(componentPath),{recursive: true})
+            await fs.writeFile(componentPath, lines.join('\n'), {
                 encoding: 'utf8'
             })
         } else {
@@ -165,7 +168,7 @@ async function main() {
     writeDebug('content_' + genparams.chosenGame + '.txt', debug_contents.join('\n\n\n\n\n\n'))
 
     const rpString = rp.map(x => `replace_path="${x}"`).join('\n')
-    fs.writeFileSync(pathlib.join(modFolder, '/descriptor.mod'), `
+    await fs.writeFile(pathlib.join(modFolder, '/descriptor.mod'), `
 version="1.0.0"\n
 tags={\n
     "Gameplay"\n
@@ -174,7 +177,7 @@ ${rpString}
 name="${modName}"\n
 supported_version="*"\n
 `)
-    fs.writeFileSync(pathlib.join(genparams.derived.gameDocumentsPath, `mod/${modName}.mod`), `
+    await fs.writeFile(pathlib.join(genparams.derived.gameDocumentsPath, `mod/${modName}.mod`), `
 version="1.0.0"\n
 tags={\n
     "Gameplay"\n

@@ -5,6 +5,7 @@ import * as os from 'os';
 import * as yargs from 'yargs';
 import { deserializeGenParams,  GameSettings,  GenParams, getModlist, getSteamGamePath, multiSelect, numberInput, selectionToValue,  } from './tools';
 import { prompt } from 'enquirer';
+import { BalancerType } from './balancers/balancecreator';
 const { Select } = require('enquirer');
 const programArgs = yargs.option('code', {
     alias: 'c',
@@ -66,7 +67,14 @@ export async function loadParams(): Promise<GenParams> {
 
         const blacklist = gameConfig.modifierBlacklist;
         const blacklistAdditions = selectionToValue(selectedBlacklists, gameConfig.optional)
-        blacklist.push(...blacklistAdditions)   
+        blacklist.push(...blacklistAdditions)
+
+        const balancers = Object.values(BalancerType).filter(x=>typeof x === 'string') as string[]
+        const chosenBalancer = await new Select({
+            name: 'game',
+            message: 'Select a balancer:',
+            choices: balancers
+        }).run();
         genparams = {
             chosenGame: chosenGame,
             includeDirs: selectionToValue(selectedIncludeDirs, gameConfig.dirSets),
@@ -77,10 +85,11 @@ export async function loadParams(): Promise<GenParams> {
                 steamGamePath: await getSteamGamePath(gameConfig.gamePathName),
                 gameDocumentsPath: gameDocumentsPath,imported:false
             },
-            balancing:{
+            balancing: {
+                balancer: chosenBalancer as BalancerType,
                 seed,
-                chance_01x,
-                chance_10x
+                chance_10x: chance_10x,
+                chance_01x: chance_01x
             }
         }
     }else{

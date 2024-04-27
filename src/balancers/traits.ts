@@ -1,5 +1,4 @@
 import _ from "lodash";
-import random, { Random } from 'random'
 import { Balancer } from "./balancer";
 export class TraitBalancer extends Balancer{
     values: {[key: string]: number} = {};
