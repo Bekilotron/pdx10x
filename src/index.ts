@@ -26,7 +26,7 @@ function getAssignmentsOfMatchStatus(debug_allprops: {
     //values contains props grouped by key
     const out: { [key: string]: number[] } = {}
     for (const key in groupedValues) {
-        if(groupedValues[key] !== undefined) {
+        if (groupedValues[key] !== undefined) {
             out[key] = groupedValues[key]!.map(x => x.value)
         }
     }
@@ -64,7 +64,7 @@ async function main() {
             }
         }
         console.log(`Copying mod "${mod.name}"...`)
-        await fs.cp(mod.value, modFolder,{recursive: true});//copy base mod over
+        await fs.cp(mod.value, modFolder, { recursive: true });//copy base mod over
     }
     const modifierRegex = /((?:cost|upkeep|build_cost_resources|modifier)\s*=\s*{[^}]*}|(\w*)\s*=\s*(\-?\d+[.,]\d+|\-?\d+)\s*?)/gim
     const openBracketsRegex = /(\w*)[\s=]*{/i;
@@ -104,7 +104,7 @@ async function main() {
                     value: parseFloat(propertyValueString),
                     key: propertyName,
                     matched: false,
-                    context: pathContext
+                    context: JSON.parse(JSON.stringify(pathContext))
                 };
                 if (!isNaN(Number(propertyValueString)) && !mmAny(propertyName, genparams.blacklist)) {
                     propObj.value = parseFloat(propertyValueString);
@@ -141,7 +141,7 @@ async function main() {
                         return match;
                     }
                     matchesAny = true;
-                    return balancer.balance(pathRelative, propertyName, propertyValueString, possibleValues[propertyName]);
+                    return balancer.balance( propertyName, propertyValueString, possibleValues[propertyName],pathContext);
                 } else {
                     return match;
                 }
@@ -153,7 +153,7 @@ async function main() {
             let pathCleaned = pathRelative.replace(/^game[\\\/]common[\\\/]/igm, 'common\\');
             let componentPath = pathlib.join(modFolder, pathCleaned)
             //console.log(`Component path will be written: ${componentPath}`)
-            await fs.mkdir(pathlib.dirname(componentPath),{recursive: true})
+            await fs.mkdir(pathlib.dirname(componentPath), { recursive: true })
             await fs.writeFile(componentPath, lines.join('\n'), {
                 encoding: 'utf8'
             })
@@ -167,25 +167,36 @@ async function main() {
     writeDebug('props_matched_' + genparams.chosenGame + '.csv', Object.keys(debug_matchedProps).map(x => x + ',' + Array.from(debug_matchedProps[x].values()).join(",")).join('\n'))
     writeDebug('content_' + genparams.chosenGame + '.txt', debug_contents.join('\n\n\n\n\n\n'))
 
+    const assignmentsOfKey = Object.groupBy(allAssignments.filter(x => x.matched), x => x.key)
+    const propertyAssignmentStr = []
+    for (const key in assignmentsOfKey) {
+        if (assignmentsOfKey[key] !== undefined) {
+            for (const assignment of assignmentsOfKey[key]!) {
+                propertyAssignmentStr.push(`${key},${assignment.value},${assignment.context.join(',')}`)
+            }
+        }
+    }
+    writeDebug('property_assignments.csv', propertyAssignmentStr.join('\n'))
+
     const rpString = rp.map(x => `replace_path="${x}"`).join('\n')
     await fs.writeFile(pathlib.join(modFolder, '/descriptor.mod'), `
-version="1.0.0"\n
-tags={\n
-    "Gameplay"\n
-}\n
+version="1.0.0"
+tags={
+    "Gameplay"
+}
 ${rpString}
-name="${modName}"\n
-supported_version="*"\n
+name="${modName}"
+supported_version="*"
 `)
     await fs.writeFile(pathlib.join(genparams.derived.gameDocumentsPath, `mod/${modName}.mod`), `
-version="1.0.0"\n
-tags={\n
-    "Gameplay"\n
-}\n
+version="1.0.0"
+tags={
+    "Gameplay"
+}
 ${rpString}
-name="${modName}"\n
-supported_version="*"\n
-path=mod/${modName}\n
+name="${modName}"
+supported_version="*"
+path=mod/${modName}
 `)
     const hashData = await hashElement(modFolder, {
         encoding: 'hex'

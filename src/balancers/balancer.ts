@@ -1,6 +1,11 @@
 
 import seedrandom from 'seedrandom'
 import { BalancerOptions } from '../tools';
+export enum BuffOrNerf{
+    Buff,
+    Nerf,
+    Neither
+}
 export abstract class Balancer{
     bp: BalancerOptions;
     rng: any;
@@ -11,37 +16,46 @@ export abstract class Balancer{
     randomBetweenI32(low: number, high: number){
         return this.rng.double()* (high - low) + low;
     }
-    getMult(fileName: string,key: string,value: string,possibleValues: number[]){
-        let setValue = Number(value);
-        let multiplier;
-        const factor = this.getFactor(fileName,key,value,possibleValues.length);
-        multiplier = 1.0;
-        
+    getBuffOrNerf(factor: number) : BuffOrNerf{
         const NERF = this.bp.chance_01x / 100 * 2 -1;
         const BUFF = Math.min(1, this.bp.chance_10x / 100 * 2 + NERF);
-
+        if(factor < NERF) {
+            return BuffOrNerf.Nerf
+        }
+        if(factor <= BUFF){
+            return BuffOrNerf.Buff
+        }
+        return BuffOrNerf.Neither
+    }
+    getMult(key: string,value: string,possibleValues: number[], pathContext: string[]){
+        let setValue = Number(value);
+        let multiplier;
+        const factor = this.getFactor(key,value,possibleValues.length,pathContext);
+        multiplier = 1.0;
+        
+        const BuffState = this.getBuffOrNerf(factor)
         if(key.indexOf('cost') > -1 && setValue > 0){//positive costs have inverse scaling
-            if(setValue < 0 && factor < NERF){
+            if(setValue < 0 && BuffState == BuffOrNerf.Nerf){
                 multiplier = 10
             }
-            if( factor <= BUFF ){
+            if( BuffState == BuffOrNerf.Buff ){
                 multiplier = 0.1
             }
             return this.normalizeValues(setValue,multiplier,possibleValues);
         }
 
-        if(value.indexOf('.') > -1 && factor < NERF) {
+        if(value.indexOf('.') > -1 && BuffState == BuffOrNerf.Nerf) {
             multiplier= 0.1
         }
-        if(factor <= BUFF){
+        if(BuffState == BuffOrNerf.Buff){
             multiplier = 10
         }
-        this.balancedAlready[fileName] = multiplier
+        this.balancedAlready[pathContext[0]] = multiplier
         return this.normalizeValues(setValue,multiplier,possibleValues);
 
     }
-    public balance(fileName: string,key: string,value: string, possibleValues: number[]){
-        const resolvedValue = this.getMult(fileName,key,value, possibleValues);
+    public balance(key: string,value: string, possibleValues: number[],pathContext: string[]){
+        const resolvedValue = this.getMult(key,value, possibleValues,pathContext);
         return `${key} = ${resolvedValue}`;
     }
     protected normalizeValues(setValue: number, multiplier: number,possibleValues: number[]){
@@ -92,5 +106,5 @@ export abstract class Balancer{
         }
         return interesting;
     }
-    abstract getFactor(fileName: string,key: string,value: string,count: number): number;
+    abstract getFactor(key: string,value: string,count: number, pathContext: string[]): number;
 }
