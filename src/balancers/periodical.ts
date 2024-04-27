@@ -6,7 +6,7 @@ export class PeriodicalBalancer extends Balancer{
     current: number =0;
     getFactor(fileName: string,key: string,value: string,count: number){
         if(this.counter % this.period === 0){
-            this.current = this.rng.float(-1,1);
+            this.current = this.randomBetweenI32(-1,1);
         }
         this.counter++;
         return this.current

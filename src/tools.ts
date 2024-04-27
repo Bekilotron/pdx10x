@@ -5,7 +5,6 @@ import * as _ from 'lodash'
 const { MultiSelect } = require('enquirer');
 import { prompt } from 'enquirer';
 import zlib from "zlib";
-import { number } from 'yargs';
 export interface ModFileLine {
     key: string;
     value: string;
@@ -14,8 +13,7 @@ export interface GameSettings{
     gamePathName: string,
     modifierBlacklist: string[],
     optional: {[key: string]:string[]}
-    dirSets:  {[key: string]:string[]},
-    
+    dirSets:  {[key: string]:string[]}
 }
 export type fullPath = string
 export async function readAllFiles(paths: string[]): Promise<{ [key: string]: string }> {
@@ -137,15 +135,24 @@ export interface BalancerOptions{
     chance_10x: number,
     chance_01x: number
 }
-export interface GenParams {
-    chosenGame: string,
+export interface GenParams{
+    chosenGame: 'hoi4'|'ck3'|'eu4'|'stellaris'|'imperator',
+    blacklist: string[],
+    selectedMods: Mod[],
     includeDirs: string[],
-    blacklistAdditions: string[],
-    mods: string[],
+    jsonSettings: GameSettings,
+    derived:{
+        imported: boolean,
+        gameDocumentsPath: string,
+        steamGamePath: string,
+    }
     balancing: BalancerOptions
 }
 export function serializeGenParams(gp: GenParams){
-    return zlib.gzipSync(JSON.stringify(gp)).toString('hex')
+    //clone gp and remove the derived fields
+    const gpSerializable = JSON.parse(JSON.stringify(gp));
+    gpSerializable.derived = undefined;
+    return zlib.gzipSync(JSON.stringify(gpSerializable)).toString('hex')
 }
 export function deserializeGenParams(gpS: string): GenParams{
     let buf = Buffer.from(gpS,'hex');

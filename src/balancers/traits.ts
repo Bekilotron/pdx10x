@@ -5,7 +5,7 @@ export class TraitBalancer extends Balancer{
     values: {[key: string]: number} = {};
     getFactor(fileName: string,key: string,value: string, count: number){
         if(!this.values[key]){
-            this.values[key] = this.rng.float(-1,1)
+            this.values[key] = this.randomBetweenI32(-1,1)
         }
         return this.values[key]
     }

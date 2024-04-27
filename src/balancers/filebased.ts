@@ -4,6 +4,6 @@ export class FileBasedBalancer extends Balancer{
     getFactor(fileName: string,key: string,value: string,count: number){
         if(this.balancedAlready[fileName])
             return this.balancedAlready[fileName];
-        return this.rng.float(Math.log(count),1);
+        return this.randomBetweenI32(Math.log(count),1);
     }
 }

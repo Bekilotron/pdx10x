@@ -1,12 +1,15 @@
 
-import random, { Random } from 'random'
+import seedrandom from 'seedrandom'
 import { BalancerOptions } from '../tools';
 export abstract class Balancer{
     bp: BalancerOptions;
-    rng: Random;
+    rng: seedrandom.PRNG;
     constructor(bp: BalancerOptions){
         this.bp = bp;
-        this.rng = random.clone(bp.seed);
+        this.rng = seedrandom(bp.seed+"");
+    }
+    randomBetweenI32(low: number, high: number){
+        return this.rng.double()* (high - low) + low;
     }
     getMult(fileName: string,key: string,value: string,possibleValues: number[]){
         let setValue = Number(value);

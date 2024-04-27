@@ -21,6 +21,7 @@
     "memoizee": "^0.4.15",
     "micromatch": "^4.0.4",
     "random": "^3.0.6",
+    "seedrandom": "^3.0.5",
     "yargs": "^15.4.1",
     "zlib": "^1.0.5"
   },
