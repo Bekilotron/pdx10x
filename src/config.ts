@@ -59,6 +59,7 @@ export async function loadParams(): Promise<GenParams> {
 
         let selectedModNames = await multiSelect('Found the following mods, which would you like to enable?', modObj)
         const seed = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER / 2)
+        console.log(`Seed for balancing: ${seed}`)
 
         const chance_01x= await numberInput('Enter the chance to NERF a modifier by 10x [0-100%]:',10)
         const chance_10x= await numberInput('Enter the chance to BUFF a modifier by 10x [0-100%]:',35)
