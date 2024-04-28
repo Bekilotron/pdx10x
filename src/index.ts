@@ -8,6 +8,8 @@ import { fullPath, readAllFiles, readDirFiles, serializeGenParams, writeDebug } 
 import { hashElement } from 'folder-hash'
 import { BalancerType, createBalancer } from './balancers/balancecreator';
 import { loadParams } from './config';
+import { PathContextBalancer } from './balancers/pathcontext';
+import { BuffOrNerf } from './balancers/balancer';
 const modName = "GENERATED_MOD"
 
 const mmAny = memoize((str: string, blacklist: string[]) => {
@@ -203,6 +205,20 @@ path=mod/${modName}
 
     })
     const hash = hashData.hash
+    if(genparams.balancing.balancer === BalancerType.pathContext){
+        let keyResults = []
+        const balancerPath = balancer as PathContextBalancer;
+        for(const balanceKey of Object.keys(balancerPath.values)){
+            const value = balancerPath.values[balanceKey];
+            const buffState = balancerPath.getBuffOrNerf(value);
+            if (buffState == BuffOrNerf.Buff){
+                keyResults.push("Buffing " +balanceKey );
+            }else if(buffState == BuffOrNerf.Nerf){
+                keyResults.push("Nerfing " +balanceKey );
+            }
+        }
+        writeDebug('pathContextResults.txt', keyResults.join("\n"))
+    }
     writeDebug('allFiles.csv', balancer.getAll().join("\n"))
     writeDebug('interestingFiles.csv', balancer.getInteresting().join("\n"))
     console.log('')
